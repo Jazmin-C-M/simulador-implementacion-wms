@@ -26,6 +26,7 @@
 
 * { box-sizing: border-box; }
 
+html { font-size: 18px; }
 html, body { height: 100%; }
 
 body {
@@ -89,9 +90,9 @@ header.app-header p {
 .status-badges { display: flex; gap: 8px; flex-wrap: wrap; }
 
 .badge {
-  padding: 7px 14px;
+  padding: 9px 16px;
   border-radius: 999px;
-  font-size: 0.8rem;
+  font-size: 0.85rem;
   font-weight: 600;
   border: 1px solid var(--border-strong);
   background: var(--panel-2);
@@ -115,9 +116,9 @@ nav.tabs button {
   background: none;
   border: 1px solid transparent;
   color: var(--text-dim);
-  padding: 8px 16px;
+  padding: 11px 20px;
   border-radius: 999px;
-  font-size: 0.85rem;
+  font-size: 0.92rem;
   font-weight: 500;
   cursor: pointer;
   white-space: nowrap;
@@ -308,8 +309,8 @@ table td input, table td select {
 }
 .kpi.good { border-left-color: var(--good); }
 .kpi.bad { border-left-color: var(--bad); }
-.kpi .value { font-size: 1.35rem; font-weight: 800; letter-spacing: -0.01em; }
-.kpi .label { font-size: 0.74rem; color: var(--text-dim); margin-top: 2px; }
+.kpi .value { font-size: 1.55rem; font-weight: 800; letter-spacing: -0.01em; }
+.kpi .label { font-size: 0.8rem; color: var(--text-dim); margin-top: 3px; }
 
 /* ---------------- Bar chart ---------------- */
 .bar-chart { display: flex; flex-direction: column; gap: 10px; }
