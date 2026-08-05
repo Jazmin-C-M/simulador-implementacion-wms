@@ -1,0 +1,65 @@
+﻿Cluster,Phase,Sequence,Deployment Maturity,Duration in Weeks
+1,Site Readiness,1,A,5
+1,Design Adaptation,2,A,2
+1,Functional Review,3,A,1
+1,UAT,4,A,2
+1,Training,5,A,3
+1,DIALT,6,A,1
+1,Go Live,7,A,1
+1,Hypercare,8,A,4
+2,Site Readiness,1,A,4
+2,Design Adaptation,2,A,1
+2,Functional Review,3,A,1
+2,UAT,4,A,2
+2,Training,5,A,2
+2,DIALT,6,A,1
+2,Go Live,7,A,1
+2,Hypercare,8,A,4
+3,Site Readiness,1,A,4
+3,Design Adaptation,2,A,1
+3,Functional Review,3,A,1
+3,UAT,4,A,1
+3,Training,5,A,2
+3,DIALT,6,A,1
+3,Go Live,7,A,1
+3,Hypercare,8,A,4
+4,Site Readiness,1,A,2
+4,Design Adaptation,2,A,0
+4,Functional Review,3,A,1
+4,UAT,4,A,1
+4,Training,5,A,1
+4,DIALT,6,A,1
+4,Go Live,7,A,1
+4,Hypercare,8,A,3
+1,Site Readiness,1,B,4
+1,Design Adaptation,2,B,1
+1,Functional Review,3,B,1
+1,UAT,4,B,1
+1,Training,5,B,2
+1,DIALT,6,B,1
+1,Go Live,7,B,1
+1,Hypercare,8,B,4
+2,Site Readiness,1,B,4
+2,Design Adaptation,2,B,1
+2,Functional Review,3,B,1
+2,UAT,4,B,1
+2,Training,5,B,2
+2,DIALT,6,B,1
+2,Go Live,7,B,1
+2,Hypercare,8,B,4
+3,Site Readiness,1,B,4
+3,Design Adaptation,2,B,1
+3,Functional Review,3,B,1
+3,UAT,4,B,1
+3,Training,5,B,2
+3,DIALT,6,B,1
+3,Go Live,7,B,1
+3,Hypercare,8,B,4
+4,Site Readiness,1,B,2
+4,Design Adaptation,2,B,0
+4,Functional Review,3,B,1
+4,UAT,4,B,1
+4,Training,5,B,1
+4,DIALT,6,B,1
+4,Go Live,7,B,1
+4,Hypercare,8,B,3

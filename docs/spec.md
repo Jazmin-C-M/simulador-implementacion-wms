@@ -55,7 +55,27 @@ Subir el proyecto a un repositorio **público** de GitHub y pegar la liga en la 
 
 **Fecha límite: martes 11 de agosto de 2026.**
 
-## Pendiente
+## Decisiones tomadas durante la revisión de datos
 
-- El archivo `WMS Scenarios.xlsx` aún no se ha recibido — se colocará en `datos/` cuando el usuario lo comparta.
-- Definición técnica de cómo se construirá el simulador (lenguaje/herramienta, ya que el usuario no tiene Python instalado) se decide una vez que se revise el archivo real.
+- **Moneda única.** Aunque la pestaña "Financials" se llama "(USD)" y originalmente se pensó en dólares, el profesor aclaró en clase que **todos los valores monetarios del archivo (Financials y Resource Master) se tratan como pesos mexicanos (MXN)**, sin conversión de tipo de cambio. El simulador no debe hacer ninguna conversión de moneda.
+- **Duplicado intencional Site 02 / Site 03 (Sites Master).** Ambos sitios tienen exactamente los mismos valores en todas las columnas de Sites Master. Es un duplicado real dentro del archivo (el profesor copió una fila para rellenar un sitio faltante durante la clase), pero se trata como si fueran dos sitios reales e independientes — no se corrige ni se marca como error en el simulador.
+- **Columnas sin traducir por significado no confirmado**: `T2/MKP/KA` y `HC Forklifts` (Sites Master) se dejan con su nombre original en inglés — es un ejercicio externo al giro de negocio del usuario (RADEC es autopartes, el dataset es de una cervecera anonimizada) y no hay certeza de su significado exacto. Si alguna fase o fórmula del simulador llega a depender de ellas, se debe confirmar con el usuario antes de usarlas en un cálculo.
+- **Celdas sueltas "Go Live" / "Post" (Resource Master, fila de Solution Architect)**: confirmado con el usuario que es basura de formato de Excel, sin significado. Se ignoran, no se usan en ningún cálculo.
+- **Clúster 4 sin fila en Phase-Resource Allocation.** La pestaña trae el mismo bloque de reglas (rol × fase × consumo de capacidad) repetido idéntico para Clúster 1, 2 y 3, pero no tiene ninguna fila para Clúster 4 (afecta solo a Site 12, Colombia, el único sitio de ese clúster). **Decisión (confirmada por el usuario): el simulador asume que Clúster 4 usa la misma tabla de consumo de recursos que 1/2/3**, ya que esos tres son idénticos entre sí. Es un supuesto, no un dato del archivo — debe quedar etiquetado como tal en el simulador.
+- **Nivel de Madurez (A/B) — se maneja como palanca, no como dato fijo.** Ninguna pestaña indica qué madurez (A o B) le corresponde a cada uno de los 15 sitios; la ficha del ejercicio tampoco la menciona como palanca. **Decisión (confirmada por el usuario): el simulador trata la madurez como una palanca ajustable por sitio, con "A" (la ruta más lenta/conservadora) como valor por defecto para los 15 sitios.** El usuario puede cambiar cualquier sitio a "B" al armar un escenario. Nota: en Clúster 3 y 4 da exactamente igual A o B (duraciones idénticas); solo cambia algo real en los sitios de Clúster 1 y 2 (12 de los 15 sitios).
+- **Grabación de la clase (YouTube) — uso como respaldo, no como fuente primaria.** El usuario tiene el video de la clase donde se explicó el ejercicio. Se acordó no revisarlo de inicio (transcripciones automáticas de YouTube fallan seguido con siglas, nombres propios y números) — se usa solo si más adelante algo no cuadra y se necesita una segunda fuente para confirmar una decisión de modelado.
+
+## Archivo de origen — nombre real
+`datos/WMS Scenarios - Anonymized.xlsx` (no `WMS Scenarios.xlsx`). Copias de solo lectura de cada pestaña, exportadas a CSV sin modificar el original, en `datos/exports/`.
+
+## Decisión técnica (confirmada con el usuario)
+
+Aplicación web estática (HTML + CSS + JavaScript puro, sin frameworks, sin paso de compilación) — el usuario no tiene Python ni Node/npm, solo Git. Los datos del Excel se generan una sola vez a `js/data.js` (embebido, no requiere servidor) vía `datos/exports/build-data.ps1`. "Guardar escenario" usa `localStorage` del navegador. Ver `CLAUDE.md` para el detalle de archivos y cómo probar localmente.
+
+## Estado del simulador
+
+Construido y probado en el navegador (los 5 entregables funcionan: plan general, plan por sitio, tabla de recursos editable, guardar/comparar escenarios, resumen de costos). Verificado que `Actual` y `Escenario 1` cargan y calculan:
+- **Actual** (casi todos los roles en 1 persona): **ningún sitio llega a terminar** — el simulador detectó que Hypercare necesita 3 "Trainers" trabajando a la vez y el archivo solo trae 1, así que es matemáticamente imposible con ese headcount, sin importar cuántas semanas pasen.
+- **Escenario 1** (5 personas en los 18 roles): los 15 sitios sí terminan, pero en ~160-190 semanas (según orden/frentes elegidos) — muy por encima de 8 meses. Confirma que "más gente en todo" no es la respuesta, hay que encontrar los roles específicos que son cuello de botella.
+
+Pendiente: que el usuario explore sus propios escenarios (ajustando headcount por rol, orden de sitios, frentes en paralelo, madurez y opción de WiFi por sitio) para encontrar uno que cumpla los 8 meses al menor costo — ese es el reto calificado del curso, no algo que deba resolverse por él.

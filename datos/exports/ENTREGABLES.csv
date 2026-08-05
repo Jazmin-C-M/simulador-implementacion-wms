@@ -1,0 +1,21 @@
+﻿objetivo:,lograr la implementación de todo el programa en 8 meses,,,,,,
+quien va a ganar:,menor costo,,,,,,
+,,,,,,,
+1,Tablero donde se vea el plan de trabajo general inicio - fin del programa,,,,,,
+2,tablero donde se vea el plan de trabajo por site,,,,,,
+3,tabla de uso de recursos por sitio y general para el programa. Quiero poder modificar esa tabla ,,,,,,
+4,poder guardar el escenario,,,,,,
+5,"que me de un resumen de costos para el programa (por escenario), costo por site, por tipo de recurso",,,,,,
+,,,,,,,
+rubrica de calificación,,,,,,Maxima,Ejemplo
+,,,,,,1,0.84375
+,8 meses + menor costo,,,,,0.5,0.5
+,Rúbrica,,,,,0.5,0.34375
+,,,,,,Maxima,Ejemplo
+,Dashboard principal,,,,,4,2
+,Guardar y comparar escenarios,,,,,4,3
+,Explicacion y entendimiento de cada pestaña del excel,,,,,4,3
+,"Calidad de la información. Correcta, bien etiquetada, sin basura ni errores.",,,,,2,1
+,"Visual / UI. Limpio, con jerarquía y legible.",,,,,2,2
+,,,,,,16,11
+,,,,,,0.5,0.34375

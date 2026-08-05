@@ -1,0 +1,136 @@
+<meta charset="UTF-8">
+<title>Simulador de Implementación WMS — RADEC (ejercicio de curso)</title>
+<link rel="stylesheet" href="css/styles.css">
+
+<header class="app-header">
+  <div>
+    <h1>Simulador de Implementación WMS</h1>
+    <p>15 sitios (7 México, 8 Colombia) · Objetivo: programa completo en 8 meses, al menor costo</p>
+  </div>
+  <div class="status-badges" id="statusBadges"></div>
+</header>
+
+<nav class="tabs" id="tabs">
+  <button data-tab="general" class="active">Plan General</button>
+  <button data-tab="porSitio">Plan por Sitio</button>
+  <button data-tab="recursos">Uso de Recursos</button>
+  <button data-tab="escenarios">Escenarios</button>
+  <button data-tab="costos">Resumen de Costos</button>
+  <button data-tab="entendimiento">Entendimiento del Excel</button>
+</nav>
+
+<main>
+
+  <!-- ENTREGABLE 1: Plan de trabajo general -->
+  <section class="tab-panel active" id="tab-general">
+    <div class="panel">
+      <h2>Configuración del programa</h2>
+      <div class="grid-controls">
+        <div class="field">
+          <label>Nombre del escenario</label>
+          <input type="text" id="scenarioName">
+        </div>
+        <div class="field">
+          <label>Fecha de inicio del programa</label>
+          <input type="date" id="startDate">
+        </div>
+        <div class="field">
+          <label>Frentes en paralelo (máx. sitios en progreso a la vez)</label>
+          <input type="number" id="maxFrentes" min="1" max="15">
+        </div>
+      </div>
+      <div style="display:flex; gap:10px; flex-wrap:wrap;">
+        <button class="btn secondary" id="btnLoadActual">Cargar "Actual" del archivo</button>
+        <button class="btn secondary" id="btnLoadEscenario1">Cargar "Escenario 1" del archivo</button>
+        <button class="btn" id="btnRecalcular">Recalcular</button>
+      </div>
+      <p class="assumption">Supuesto del modelo: el orden de la cola de sitios es una restricción real — un sitio no se salta a otro en la fila aunque el otro pudiera arrancar antes. Ajusta el orden en la pestaña "Uso de Recursos".</p>
+    </div>
+
+    <div class="panel">
+      <h2>Resultado del programa completo</h2>
+      <div class="kpi-row" id="kpiRow"></div>
+      <div id="diagnostico"></div>
+      <h3 style="margin-top:18px;">Línea de tiempo por sitio</h3>
+      <div class="phase-colors" id="phaseLegend"></div>
+      <div id="ganttGeneral"></div>
+    </div>
+  </section>
+
+  <!-- ENTREGABLE 2: Plan por sitio -->
+  <section class="tab-panel" id="tab-porSitio">
+    <div class="panel">
+      <h2>Plan de trabajo por sitio</h2>
+      <p class="hint">Selecciona un sitio para ver el detalle semana a semana de sus 8 fases.</p>
+      <div class="field" style="max-width:320px;">
+        <label>Sitio</label>
+        <select id="siteSelector"></select>
+      </div>
+      <div id="siteDetail" style="margin-top:16px;"></div>
+    </div>
+  </section>
+
+  <!-- ENTREGABLE 3: Tabla de uso de recursos (editable) -->
+  <section class="tab-panel" id="tab-recursos">
+    <div class="panel">
+      <h2>Recursos por rol — editable</h2>
+      <p class="hint">Cambia el headcount de cada rol para armar tu propio escenario. "Actual" y "Escenario 1" se muestran como referencia (no editables) tal como vienen en el archivo.</p>
+      <div class="table-scroll">
+        <table id="tablaRecursos"></table>
+      </div>
+    </div>
+
+    <div class="panel">
+      <h2>Configuración por sitio</h2>
+      <p class="hint">Orden de entrada, nivel de madurez (A/B) y opción de WiFi — palancas que puedes mover por sitio.</p>
+      <div class="table-scroll">
+        <table id="tablaSitios"></table>
+      </div>
+    </div>
+  </section>
+
+  <!-- ENTREGABLE 4: Guardar y comparar escenarios -->
+  <section class="tab-panel" id="tab-escenarios">
+    <div class="panel">
+      <h2>Guardar escenario actual</h2>
+      <div style="display:flex; gap:10px;">
+        <button class="btn" id="btnGuardarEscenario">Guardar escenario actual</button>
+      </div>
+      <p class="footnote">Se guarda en este navegador (localStorage) — persiste aunque cierres la pestaña, en este mismo equipo.</p>
+    </div>
+    <div class="panel">
+      <h2>Escenarios guardados — comparación</h2>
+      <div class="table-scroll">
+        <table id="tablaComparacion"></table>
+      </div>
+      <div id="listaEscenarios" style="margin-top:14px;"></div>
+    </div>
+  </section>
+
+  <!-- ENTREGABLE 5: Resumen de costos -->
+  <section class="tab-panel" id="tab-costos">
+    <div class="panel">
+      <h2>Resumen de costos — escenario actual</h2>
+      <div class="kpi-row" id="kpiCostos"></div>
+    </div>
+    <div class="panel">
+      <h2>Costo por sitio</h2>
+      <div class="table-scroll"><table id="tablaCostoSitio"></table></div>
+    </div>
+    <div class="panel">
+      <h2>Costo por tipo de recurso</h2>
+      <div class="bar-chart" id="barCostoRecurso"></div>
+    </div>
+  </section>
+
+  <!-- Entendimiento del Excel -->
+  <section class="tab-panel" id="tab-entendimiento">
+    <div class="panel" id="entendimientoContent"></div>
+  </section>
+
+</main>
+
+<script src="js/data.js"></script>
+<script src="js/model.js"></script>
+<script src="js/engine.js"></script>
+<script src="js/app.js"></script>
