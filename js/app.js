@@ -88,11 +88,13 @@ function renderStatusBadges() {
 function renderKPIs() {
   const el = document.getElementById("kpiRow");
   const finishedCount = sim.siteSchedules.length;
+  const endClass = sim.meetsGoal ? "good" : "bad";
+  const finishedClass = finishedCount === model.sites.length ? "good" : "bad";
   el.innerHTML = `
     <div class="kpi"><div class="value">${fmtDate(sim.startDate)}</div><div class="label">Inicio del programa</div></div>
-    <div class="kpi"><div class="value">${fmtDate(sim.endDate)}</div><div class="label">Fin del programa</div></div>
+    <div class="kpi ${endClass}"><div class="value">${fmtDate(sim.endDate)}</div><div class="label">Fin del programa</div></div>
     <div class="kpi"><div class="value">${fmtDate(sim.goalDate)}</div><div class="label">Meta (inicio + 8 meses)</div></div>
-    <div class="kpi"><div class="value">${finishedCount} / ${model.sites.length}</div><div class="label">Sitios terminados</div></div>
+    <div class="kpi ${finishedClass}"><div class="value">${finishedCount} / ${model.sites.length}</div><div class="label">Sitios terminados</div></div>
     <div class="kpi"><div class="value">${scenario.maxFrentes}</div><div class="label">Frentes en paralelo</div></div>
   `;
 }
