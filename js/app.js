@@ -16,7 +16,10 @@ const PHASE_COLORS = {
 const LS_KEY = "wms_simulador_escenarios_v1";
 
 const model = buildModel(RAW_DATA);
-let scenario = defaultScenario(model, {});
+// Punto de partida: un escenario ya verificado que cumple los 8 meses (no "Actual", que no cumple).
+// Esta incrustado en engine.js, no en localStorage, para que se vea aunque sea la primera vez que
+// alguien abre la pagina sin nada guardado en su navegador.
+let scenario = recommendedScenario(model, {});
 let sim = null;
 let costs = null;
 
@@ -62,6 +65,13 @@ document.getElementById("btnLoadActual").addEventListener("click", () => {
 document.getElementById("btnLoadEscenario1").addEventListener("click", () => {
   scenario = loadPresetScenario(model, "escenario1", scenario.startDateISO);
   syncControlsFromScenario();
+  recalc();
+});
+document.getElementById("btnLoadRecomendado").addEventListener("click", () => {
+  scenario = recommendedScenario(model, { startDateISO: scenario.startDateISO });
+  syncControlsFromScenario();
+  renderTablaSitios();
+  renderTablaRecursos();
   recalc();
 });
 

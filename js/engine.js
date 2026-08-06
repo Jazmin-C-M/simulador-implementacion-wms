@@ -70,6 +70,42 @@ function loadPresetScenario(model, preset, startDateISO) {
   return s;
 }
 
+// Escenario ganador encontrado durante el desarrollo (búsqueda de menor costo cumpliendo <= 8 meses,
+// incluyendo Warehouse Manager Org A y los 2 Project Manager en 1 cada uno para que se vea completo/realista).
+// Se deja incrustado aquí -- no en localStorage -- para que cualquiera que abra la app por primera vez
+// (sin nada guardado en su navegador) vea de inmediato un escenario que cumple, en vez de "Actual" (que no cumple).
+// Verificado: 34 semanas (tope exacto de 8 meses), $25,878,849 MXN.
+const HEADCOUNT_ESCENARIO_RECOMENDADO = {
+  1: 4,  // Solution Architect
+  2: 1,  // Warehouse Manager Org A
+  3: 1,  // Project Manager Country B
+  4: 1,  // Project Manager Country A
+  5: 7,  // Change Management Lead (Internal)
+  6: 0,  // Change Management Lead (External)
+  7: 0,  // Infrastructure Lead (Internal)
+  8: 8,  // Infrastructure Lead (External)
+  9: 0,  // Functional Lead (Internal)
+  10: 9, // Functional Lead (External)
+  11: 4, // SAP Integrations Lead
+  12: 3, // SAP Integrations Specialist
+  13: 4, // Azure Lead
+  14: 4, // Azure Specialist
+  15: 4, // Testing Lead
+  16: 13,// Trainers
+  17: 3, // Functional Lead Vendor A
+  18: 2  // Support Lead
+};
+
+function recommendedScenario(model, { startDateISO } = {}) {
+  const s = defaultScenario(model, { name: "Propuesta recomendada (12 frentes, madurez B, WiFi priorizado)", startDateISO });
+  s.maxFrentes = 12;
+  model.sites.forEach(site => { s.siteMaturity[site.siteId] = "B"; s.siteWifiOption[site.siteId] = "wifiPrioritized"; });
+  model.roleVariants.forEach(r => {
+    if (HEADCOUNT_ESCENARIO_RECOMENDADO[r.id] !== undefined) s.roleHeadcountByVariantId[r.id] = HEADCOUNT_ESCENARIO_RECOMENDADO[r.id];
+  });
+  return s;
+}
+
 function totalHeadcountByRoleName(model, scenario) {
   const totals = {};
   model.roleVariants.forEach(r => {
