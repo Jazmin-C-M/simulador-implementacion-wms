@@ -72,8 +72,9 @@ document.getElementById("btnLoadEscenario1").addEventListener("click", () => {
   syncControlsFromScenario();
   recalc();
 });
-document.getElementById("btnLoadRecomendado").addEventListener("click", () => {
-  scenario = recommendedScenario(model, { startDateISO: scenario.startDateISO });
+document.getElementById("btnLoadPropuesta").addEventListener("click", () => {
+  const key = parseInt(document.getElementById("propuestaSelector").value);
+  scenario = loadPropuesta(model, key, scenario.startDateISO);
   syncControlsFromScenario();
   renderTablaSitios();
   renderTablaRecursos();

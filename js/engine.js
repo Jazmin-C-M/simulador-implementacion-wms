@@ -71,40 +71,67 @@ function loadPresetScenario(model, preset, startDateISO) {
   return s;
 }
 
-// Escenario ganador encontrado durante el desarrollo (búsqueda de menor costo cumpliendo <= 8 meses,
-// incluyendo Warehouse Manager Org A y los 2 Project Manager en 1 cada uno para que se vea completo/realista).
-// Se deja incrustado aquí -- no en localStorage -- para que cualquiera que abra la app por primera vez
-// (sin nada guardado en su navegador) vea de inmediato un escenario que cumple, en vez de "Actual" (que no cumple).
-// Verificado: 34 semanas (tope exacto de 8 meses), $25,878,849 MXN.
-const HEADCOUNT_ESCENARIO_RECOMENDADO = {
-  1: 4,  // Solution Architect
-  2: 1,  // Warehouse Manager Org A
-  3: 1,  // Project Manager Country B
-  4: 1,  // Project Manager Country A
-  5: 7,  // Change Management Lead (Internal)
-  6: 0,  // Change Management Lead (External)
-  7: 0,  // Infrastructure Lead (Internal)
-  8: 8,  // Infrastructure Lead (External)
-  9: 0,  // Functional Lead (Internal)
-  10: 9, // Functional Lead (External)
-  11: 4, // SAP Integrations Lead
-  12: 3, // SAP Integrations Specialist
-  13: 4, // Azure Lead
-  14: 4, // Azure Specialist
-  15: 4, // Testing Lead
-  16: 13,// Trainers
-  17: 3, // Functional Lead Vendor A
-  18: 2  // Support Lead
+// Las 6 propuestas encontradas durante el desarrollo (busqueda de menor costo cumpliendo <= 8 meses).
+// Se dejan incrustadas aqui -- no en localStorage -- para que cualquiera que abra la app por primera vez
+// (sin nada guardado en su navegador, ej. el profesor calificando) las tenga disponibles siempre, sin
+// depender de que se hayan guardado bien en algun navegador especifico.
+// IDs de rol (coinciden con el orden de Resource Master): 1 Solution Architect, 2 Warehouse Manager Org A,
+// 3 Project Manager Country B, 4 Project Manager Country A, 5 Change Mgmt Lead (Int), 6 Change Mgmt Lead (Ext),
+// 7 Infrastructure Lead (Int), 8 Infrastructure Lead (Ext), 9 Functional Lead (Int), 10 Functional Lead (Ext),
+// 11 SAP Integrations Lead, 12 SAP Integrations Specialist, 13 Azure Lead, 14 Azure Specialist, 15 Testing Lead,
+// 16 Trainers, 17 Functional Lead Vendor A, 18 Support Lead.
+// Todas usan Madurez B y WiFi Priorizado en los 15 sitios (gratis y siempre igual o mejor, ver
+// docs/entendimiento-datos.md), y llegan exactamente a las 34 semanas = el tope maximo que cabe en 8 meses.
+const PROPUESTAS = {
+  1: {
+    label: "Propuesta 1 — menor costo puro (sin Project/Warehouse Managers)",
+    maxFrentes: 13, delayFactor: 0, costoVerificado: 25424073.58,
+    headcount: { 1: 4, 2: 0, 3: 0, 4: 0, 5: 0, 6: 7, 7: 0, 8: 7, 9: 0, 10: 9, 11: 4, 12: 4, 13: 4, 14: 4, 15: 3, 16: 13, 17: 4, 18: 2 }
+  },
+  2: {
+    label: "Propuesta 2 — enfoque realista (con Project/Warehouse Managers)",
+    maxFrentes: 13, delayFactor: 0, costoVerificado: 26089205.91,
+    headcount: { 1: 4, 2: 1, 3: 1, 4: 1, 5: 0, 6: 7, 7: 0, 8: 7, 9: 0, 10: 9, 11: 4, 12: 4, 13: 4, 14: 4, 15: 3, 16: 13, 17: 4, 18: 2 }
+  },
+  3: {
+    label: "Propuesta 3 — menor costo puro, ajuste fino (sin Project/Warehouse Managers)",
+    maxFrentes: 12, delayFactor: 0, costoVerificado: 25151116.15,
+    headcount: { 1: 4, 2: 0, 3: 0, 4: 0, 5: 0, 6: 7, 7: 8, 8: 0, 9: 0, 10: 9, 11: 4, 12: 3, 13: 4, 14: 4, 15: 4, 16: 13, 17: 3, 18: 2 }
+  },
+  4: {
+    label: "Propuesta 4 — recomendada: realista, ajuste fino (con Project/Warehouse Managers)",
+    maxFrentes: 12, delayFactor: 0, costoVerificado: 25878849.18,
+    headcount: { 1: 4, 2: 1, 3: 1, 4: 1, 5: 7, 6: 0, 7: 0, 8: 8, 9: 0, 10: 9, 11: 4, 12: 3, 13: 4, 14: 4, 15: 4, 16: 13, 17: 3, 18: 2 }
+  },
+  5: {
+    label: "Propuesta 5 — realista + 5% de retraso de contingencia",
+    maxFrentes: 13, delayFactor: 0.05, costoVerificado: 26014407.29,
+    headcount: { 1: 4, 2: 1, 3: 1, 4: 1, 5: 0, 6: 7, 7: 0, 8: 8, 9: 0, 10: 9, 11: 4, 12: 4, 13: 4, 14: 4, 15: 3, 16: 13, 17: 4, 18: 2 }
+  },
+  6: {
+    label: "Propuesta 6 — realista + 10% de retraso de contingencia",
+    maxFrentes: 15, delayFactor: 0.10, costoVerificado: 28101864.14,
+    headcount: { 1: 5, 2: 1, 3: 1, 4: 1, 5: 10, 6: 0, 7: 0, 8: 10, 9: 0, 10: 10, 11: 5, 12: 3, 13: 4, 14: 4, 15: 5, 16: 15, 17: 4, 18: 2 }
+  }
 };
 
-function recommendedScenario(model, { startDateISO } = {}) {
-  const s = defaultScenario(model, { name: "Propuesta recomendada (12 frentes, madurez B, WiFi priorizado)", startDateISO });
-  s.maxFrentes = 12;
+function loadPropuesta(model, key, startDateISO) {
+  const p = PROPUESTAS[key];
+  const s = defaultScenario(model, { name: p.label, startDateISO });
+  s.maxFrentes = p.maxFrentes;
+  s.delayFactor = p.delayFactor;
   model.sites.forEach(site => { s.siteMaturity[site.siteId] = "B"; s.siteWifiOption[site.siteId] = "wifiPrioritized"; });
   model.roleVariants.forEach(r => {
-    if (HEADCOUNT_ESCENARIO_RECOMENDADO[r.id] !== undefined) s.roleHeadcountByVariantId[r.id] = HEADCOUNT_ESCENARIO_RECOMENDADO[r.id];
+    if (p.headcount[r.id] !== undefined) s.roleHeadcountByVariantId[r.id] = p.headcount[r.id];
   });
   return s;
+}
+
+// La Propuesta 4 es la ganadora: punto de partida por default de la app (ver app.js), en vez de "Actual"
+// (que nunca termina ni un sitio) -- asi cualquiera que abra la pagina por primera vez ve de inmediato
+// un escenario que cumple los 8 meses.
+function recommendedScenario(model, { startDateISO } = {}) {
+  return loadPropuesta(model, 4, startDateISO);
 }
 
 function totalHeadcountByRoleName(model, scenario) {

@@ -46,8 +46,21 @@
           <input type="number" id="delayFactor" min="0" max="50" step="1">
         </div>
       </div>
-      <div style="display:flex; gap:10px; flex-wrap:wrap;">
-        <button class="btn" id="btnLoadRecomendado">Cargar propuesta recomendada (cumple 8 meses)</button>
+      <div style="display:flex; gap:10px; flex-wrap:wrap; align-items:flex-end;">
+        <div class="field" style="max-width:420px;">
+          <label>Cargar una de las 6 propuestas (incrustadas, siempre disponibles)</label>
+          <select id="propuestaSelector">
+            <option value="4">Propuesta 4 — recomendada (cumple 8 meses)</option>
+            <option value="1">Propuesta 1 — menor costo puro</option>
+            <option value="2">Propuesta 2 — realista (con Project/Warehouse Managers)</option>
+            <option value="3">Propuesta 3 — menor costo puro, ajuste fino</option>
+            <option value="5">Propuesta 5 — realista + 5% de retraso</option>
+            <option value="6">Propuesta 6 — realista + 10% de retraso</option>
+          </select>
+        </div>
+        <button class="btn" id="btnLoadPropuesta">Cargar propuesta seleccionada</button>
+      </div>
+      <div style="display:flex; gap:10px; flex-wrap:wrap; margin-top:10px;">
         <button class="btn secondary" id="btnLoadActual">Cargar "Actual" del archivo</button>
         <button class="btn secondary" id="btnLoadEscenario1">Cargar "Escenario 1" del archivo</button>
         <button class="btn secondary" id="btnRecalcular">Recalcular</button>
