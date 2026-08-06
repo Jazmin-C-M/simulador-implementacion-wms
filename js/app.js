@@ -24,8 +24,9 @@ let sim = null;
 let costs = null;
 
 function recalc() {
-  sim = simulate(model, scenario);
-  costs = computeCosts(model, scenario, sim);
+  const effectiveModel = buildDelayedModel(model, scenario.delayFactor || 0);
+  sim = simulate(effectiveModel, scenario);
+  costs = computeCosts(effectiveModel, scenario, sim);
   renderAll();
 }
 
@@ -56,6 +57,10 @@ document.getElementById("maxFrentes").addEventListener("change", e => {
   scenario.maxFrentes = Math.max(1, parseInt(e.target.value) || 1);
   recalc();
 });
+document.getElementById("delayFactor").addEventListener("input", e => {
+  scenario.delayFactor = Math.max(0, parseFloat(e.target.value) || 0) / 100;
+  recalc();
+});
 document.getElementById("btnRecalcular").addEventListener("click", recalc);
 document.getElementById("btnLoadActual").addEventListener("click", () => {
   scenario = loadPresetScenario(model, "actual", scenario.startDateISO);
@@ -79,6 +84,7 @@ function syncControlsFromScenario() {
   document.getElementById("scenarioName").value = scenario.name;
   document.getElementById("startDate").value = scenario.startDateISO;
   document.getElementById("maxFrentes").value = scenario.maxFrentes;
+  document.getElementById("delayFactor").value = Math.round((scenario.delayFactor || 0) * 1000) / 10;
 }
 
 // ---------------- Render: badges de estado ----------------
@@ -87,10 +93,13 @@ function renderStatusBadges() {
   const goalBadge = sim.meetsGoal
     ? `<div class="badge good">✅ Cumple 8 meses<span class="sub">${fmtDate(sim.endDate)}</span></div>`
     : `<div class="badge bad">❌ No cumple 8 meses<span class="sub">${sim.timedOut ? "no termina en el horizonte simulado" : fmtDate(sim.endDate)}</span></div>`;
+  const delayBadge = scenario.delayFactor > 0
+    ? `<div class="badge">⚠️ +${Math.round(scenario.delayFactor * 100)}% retraso incluido</div>` : "";
   el.innerHTML = `
     ${goalBadge}
     <div class="badge">${fmtWeeks(sim.totalWeeks)} · ${(Math.round(sim.programMonths * 10) / 10)} meses</div>
     <div class="badge">${fmtMoney(costs.totalCost)} MXN</div>
+    ${delayBadge}
   `;
 }
 
@@ -386,14 +395,15 @@ function renderEscenariosGuardados() {
       <td>${item.resumen.meetsGoal ? "✅" : "❌"}</td>
       <td>${fmtWeeks(item.resumen.totalWeeks)}</td>
       <td>${fmtMoney(item.resumen.totalCost)}</td>
+      <td>${item.scenario.delayFactor ? "+" + Math.round(item.scenario.delayFactor * 100) + "%" : "—"}</td>
       <td>
         <button class="btn small secondary" data-load="${item.id}">Cargar</button>
         <button class="btn small danger" data-del="${item.id}">Eliminar</button>
       </td>
     </tr>`).join("");
   document.getElementById("tablaComparacion").innerHTML = `
-    <thead><tr><th>Nombre</th><th>Guardado</th><th>¿8 meses?</th><th>Duración</th><th>Costo</th><th>Acciones</th></tr></thead>
-    <tbody>${rows || `<tr><td colspan="6" style="color:var(--text-dim)">Aún no hay escenarios guardados.</td></tr>`}</tbody>
+    <thead><tr><th>Nombre</th><th>Guardado</th><th>¿8 meses?</th><th>Duración</th><th>Costo</th><th>Retraso</th><th>Acciones</th></tr></thead>
+    <tbody>${rows || `<tr><td colspan="7" style="color:var(--text-dim)">Aún no hay escenarios guardados.</td></tr>`}</tbody>
   `;
 
   document.querySelectorAll("[data-load]").forEach(btn => {

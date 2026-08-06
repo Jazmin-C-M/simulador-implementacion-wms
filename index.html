@@ -41,6 +41,10 @@
           <label>Frentes en paralelo (máx. sitios en progreso a la vez)</label>
           <input type="number" id="maxFrentes" min="1" max="15">
         </div>
+        <div class="field">
+          <label>% de retraso de contingencia (riesgo, no viene del archivo)</label>
+          <input type="number" id="delayFactor" min="0" max="50" step="1">
+        </div>
       </div>
       <div style="display:flex; gap:10px; flex-wrap:wrap;">
         <button class="btn" id="btnLoadRecomendado">Cargar propuesta recomendada (cumple 8 meses)</button>

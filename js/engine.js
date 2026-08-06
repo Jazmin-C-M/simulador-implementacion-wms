@@ -54,6 +54,7 @@ function defaultScenario(model, { name = "Nuevo escenario", startDateISO } = {})
     name,
     startDateISO: startDateISO || isoDate(new Date()),
     maxFrentes: 3,
+    delayFactor: 0, // % de retraso de contingencia (0 = sin colchon), ver buildDelayedModel en model.js
     siteOrder: model.sites.map(s => s.siteId),
     siteMaturity,
     siteWifiOption,

@@ -73,3 +73,27 @@ function getPhaseDuration(model, cluster, maturity, phaseName) {
   const found = list.find(p => p.phase === phaseName);
   return found ? found.durationWeeks : 0;
 }
+
+// Palanca de contingencia por atraso (no viene del archivo -- es una decision de planeacion:
+// "a veces pasan retrasos", asi que se puede inflar la duracion de cada fase un % como colchon
+// de riesgo). El % se reparte PROPORCIONALMENTE entre las 8 fases de cada cluster+madurez (metodo
+// de residuo mayor, para que la suma total quede exacta) en vez de redondear cada fase por separado
+// hacia arriba -- eso distorsionaria mucho las fases de 1 semana (una fase de 1 semana con 5% de
+// retraso pasaria a 2 semanas, un 100% de aumento, si se redondeara fase por fase).
+function buildDelayedModel(baseModel, delayFactor) {
+  if (!delayFactor) return baseModel;
+  const newPhasesByClusterMaturity = {};
+  Object.keys(baseModel.phasesByClusterMaturity).forEach(key => {
+    const list = baseModel.phasesByClusterMaturity[key];
+    const total = list.reduce((sum, p) => sum + p.durationWeeks, 0);
+    const newTotal = Math.ceil(total * (1 + delayFactor));
+    const extra = newTotal - total;
+    const raw = list.map(p => (total > 0 ? (p.durationWeeks / total) * extra : 0));
+    const floorExtra = raw.map(Math.floor);
+    let remaining = extra - floorExtra.reduce((a, b) => a + b, 0);
+    const order = raw.map((r, i) => ({ i, frac: r - floorExtra[i] })).sort((a, b) => b.frac - a.frac);
+    for (let k = 0; k < order.length && remaining > 0; k++, remaining--) floorExtra[order[k].i] += 1;
+    newPhasesByClusterMaturity[key] = list.map((p, i) => ({ ...p, durationWeeks: p.durationWeeks + floorExtra[i] }));
+  });
+  return Object.assign({}, baseModel, { phasesByClusterMaturity: newPhasesByClusterMaturity });
+}
