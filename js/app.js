@@ -61,7 +61,6 @@ document.getElementById("delayFactor").addEventListener("input", e => {
   scenario.delayFactor = Math.max(0, parseFloat(e.target.value) || 0) / 100;
   recalc();
 });
-document.getElementById("btnRecalcular").addEventListener("click", recalc);
 document.getElementById("btnLoadActual").addEventListener("click", () => {
   scenario = loadPresetScenario(model, "actual", scenario.startDateISO);
   syncControlsFromScenario();
