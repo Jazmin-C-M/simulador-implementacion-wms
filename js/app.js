@@ -228,7 +228,31 @@ function renderSiteDetail() {
   let phasesHtml = "";
   if (schedule) {
     const totalW = Math.max(schedule.endWeek, 1);
+    let previousEndWeek = schedule.phases.length ? schedule.phases[0].startWeek : 0;
     schedule.phases.forEach(ph => {
+      const gap = ph.startWeek - previousEndWeek;
+      if (gap > 0) {
+        const demandNext = getPhaseRoleDemand(model, site.cluster, ph.phase);
+        const blockers = Object.entries(demandNext)
+          .map(([role, need]) => {
+            const used = (sim.weeklyRoleLoad[previousEndWeek] || {})[role] || 0;
+            const cap = sim.capacityByRole[role] || 0;
+            return { role, need, used, cap, falta: used + need - cap };
+          })
+          .filter(b => b.falta > 1e-9)
+          .sort((a, b) => b.falta - a.falta);
+        const blockersStr = blockers.length
+          ? blockers.map(b => `<b>${b.role}</b> (necesitabas ${Math.round((b.used + b.need) * 100) / 100}, tenías ${b.cap})`).join(", ")
+          : "otro sitio tenía prioridad y liberó la capacidad después";
+        phasesHtml += `<tr>
+          <td colspan="4">
+            <div class="assumption" style="margin:4px 0;">
+              ⏸️ Esperó <b>${gap} semana${gap > 1 ? "s" : ""}</b> (semana ${previousEndWeek}–${ph.startWeek}) antes de poder entrar a <b>${ph.phase}</b> — no había capacidad suficiente de: ${blockersStr}.
+              ${blockers.length ? `Sube el headcount de <b>${blockers[0].role}</b> en "Uso de Recursos" para intentar acortar esta espera.` : ""}
+            </div>
+          </td>
+        </tr>`;
+      }
       const startDate = addDays(sim.startDate, ph.startWeek * 7);
       const endDate = addDays(sim.startDate, ph.endWeek * 7);
       const demand = getPhaseRoleDemand(model, site.cluster, ph.phase);
@@ -239,6 +263,7 @@ function renderSiteDetail() {
         <td>${fmtDate(startDate)} → ${fmtDate(endDate)}</td>
         <td style="font-size:0.78rem;color:var(--text-dim);">${demandStr}</td>
       </tr>`;
+      previousEndWeek = ph.endWeek;
     });
   } else {
     phasesHtml = `<tr><td colspan="4">Este sitio no terminó dentro del horizonte simulado con el escenario actual.</td></tr>`;
