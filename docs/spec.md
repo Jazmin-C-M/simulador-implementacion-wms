@@ -76,6 +76,6 @@ Aplicación web estática (HTML + CSS + JavaScript puro, sin frameworks, sin pas
 
 Construido y probado en el navegador (los 5 entregables funcionan: plan general, plan por sitio, tabla de recursos editable, guardar/comparar escenarios, resumen de costos). Verificado que `Actual` y `Escenario 1` cargan y calculan:
 - **Actual** (casi todos los roles en 1 persona): **ningún sitio llega a terminar** — el simulador detectó que Hypercare necesita 3 "Trainers" trabajando a la vez y el archivo solo trae 1, así que es matemáticamente imposible con ese headcount, sin importar cuántas semanas pasen.
-- **Escenario 1** (5 personas en los 18 roles): los 15 sitios sí terminan, pero en ~160-190 semanas (según orden/frentes elegidos) — muy por encima de 8 meses. Confirma que "más gente en todo" no es la respuesta, hay que encontrar los roles específicos que son cuello de botella.
+- **Escenario 1** (5 personas en los 18 roles): los 15 sitios sí terminan, pero en 98 semanas (~22.7 meses) — muy por encima de 8 meses. Confirma que "más gente en todo" no es la respuesta, hay que encontrar los roles específicos que son cuello de botella.
 
 Pendiente: que el usuario explore sus propios escenarios (ajustando headcount por rol, orden de sitios, frentes en paralelo, madurez y opción de WiFi por sitio) para encontrar uno que cumpla los 8 meses al menor costo — ese es el reto calificado del curso, no algo que deba resolverse por él.
