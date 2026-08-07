@@ -82,36 +82,41 @@ function loadPresetScenario(model, preset, startDateISO) {
 // 16 Trainers, 17 Functional Lead Vendor A, 18 Support Lead.
 // Todas usan Madurez B y WiFi Priorizado en los 15 sitios (gratis y siempre igual o mejor, ver
 // docs/entendimiento-datos.md), y llegan exactamente a las 34 semanas = el tope maximo que cabe en 8 meses.
+// Recalculadas el 2026-08-07 tras corregir un bug del motor (una fase de 0 semanas en Cluster 4
+// perdia una semana de mas por un problema de orden en el bucle principal, ver comentario en
+// tryStartPhase). El bug se detecto porque el usuario probo un escenario propio, Cluster 4 (Site 12)
+// mostro un hueco entre fases sin ningun rol saturado, y al investigar se encontro el error real.
+// Estas 6 propuestas quedaron re-optimizadas contra el motor ya corregido.
 const PROPUESTAS = {
   1: {
     label: "Propuesta 1 — menor costo puro (sin Project/Warehouse Managers)",
-    maxFrentes: 13, delayFactor: 0, costoVerificado: 25424073.58,
-    headcount: { 1: 4, 2: 0, 3: 0, 4: 0, 5: 0, 6: 7, 7: 0, 8: 7, 9: 0, 10: 9, 11: 4, 12: 4, 13: 4, 14: 4, 15: 3, 16: 13, 17: 4, 18: 2 }
+    maxFrentes: 13, delayFactor: 0, costoVerificado: 25251921.68,
+    headcount: { 1: 4, 2: 0, 3: 0, 4: 0, 5: 0, 6: 7, 7: 0, 8: 8, 9: 0, 10: 9, 11: 4, 12: 3, 13: 4, 14: 4, 15: 2, 16: 13, 17: 4, 18: 2 }
   },
   2: {
     label: "Propuesta 2 — enfoque realista (con Project/Warehouse Managers)",
-    maxFrentes: 13, delayFactor: 0, costoVerificado: 26089205.91,
-    headcount: { 1: 4, 2: 1, 3: 1, 4: 1, 5: 0, 6: 7, 7: 0, 8: 7, 9: 0, 10: 9, 11: 4, 12: 4, 13: 4, 14: 4, 15: 3, 16: 13, 17: 4, 18: 2 }
+    maxFrentes: 13, delayFactor: 0, costoVerificado: 25831898.66,
+    headcount: { 1: 4, 2: 1, 3: 1, 4: 1, 5: 0, 6: 7, 7: 7, 8: 0, 9: 0, 10: 9, 11: 4, 12: 3, 13: 4, 14: 4, 15: 4, 16: 13, 17: 4, 18: 2 }
   },
   3: {
     label: "Propuesta 3 — menor costo puro, ajuste fino (sin Project/Warehouse Managers)",
-    maxFrentes: 12, delayFactor: 0, costoVerificado: 25151116.15,
-    headcount: { 1: 4, 2: 0, 3: 0, 4: 0, 5: 0, 6: 7, 7: 8, 8: 0, 9: 0, 10: 9, 11: 4, 12: 3, 13: 4, 14: 4, 15: 4, 16: 13, 17: 3, 18: 2 }
+    maxFrentes: 13, delayFactor: 0, costoVerificado: 25166766.33,
+    headcount: { 1: 4, 2: 0, 3: 0, 4: 0, 5: 0, 6: 7, 7: 7, 8: 0, 9: 0, 10: 9, 11: 4, 12: 3, 13: 4, 14: 4, 15: 4, 16: 13, 17: 4, 18: 2 }
   },
   4: {
     label: "Propuesta 4 — recomendada: realista, ajuste fino (con Project/Warehouse Managers)",
-    maxFrentes: 12, delayFactor: 0, costoVerificado: 25878849.18,
-    headcount: { 1: 4, 2: 1, 3: 1, 4: 1, 5: 7, 6: 0, 7: 0, 8: 8, 9: 0, 10: 9, 11: 4, 12: 3, 13: 4, 14: 4, 15: 4, 16: 13, 17: 3, 18: 2 }
+    maxFrentes: 12, delayFactor: 0, costoVerificado: 25627525.82,
+    headcount: { 1: 4, 2: 1, 3: 1, 4: 1, 5: 0, 6: 7, 7: 0, 8: 7, 9: 0, 10: 8, 11: 4, 12: 3, 13: 4, 14: 4, 15: 4, 16: 12, 17: 5, 18: 2 }
   },
   5: {
     label: "Propuesta 5 — realista + 5% de retraso de contingencia",
-    maxFrentes: 13, delayFactor: 0.05, costoVerificado: 26014407.29,
-    headcount: { 1: 4, 2: 1, 3: 1, 4: 1, 5: 0, 6: 7, 7: 0, 8: 8, 9: 0, 10: 9, 11: 4, 12: 4, 13: 4, 14: 4, 15: 3, 16: 13, 17: 4, 18: 2 }
+    maxFrentes: 14, delayFactor: 0.05, costoVerificado: 26503705.34,
+    headcount: { 1: 5, 2: 1, 3: 1, 4: 1, 5: 8, 6: 0, 7: 0, 8: 8, 9: 0, 10: 10, 11: 4, 12: 4, 13: 4, 14: 4, 15: 3, 16: 15, 17: 4, 18: 2 }
   },
   6: {
     label: "Propuesta 6 — realista + 10% de retraso de contingencia",
-    maxFrentes: 15, delayFactor: 0.10, costoVerificado: 28101864.14,
-    headcount: { 1: 5, 2: 1, 3: 1, 4: 1, 5: 10, 6: 0, 7: 0, 8: 10, 9: 0, 10: 10, 11: 5, 12: 3, 13: 4, 14: 4, 15: 5, 16: 15, 17: 4, 18: 2 }
+    maxFrentes: 14, delayFactor: 0.10, costoVerificado: 28629827.32,
+    headcount: { 1: 5, 2: 1, 3: 1, 4: 1, 5: 7, 6: 0, 7: 0, 8: 10, 9: 11, 10: 0, 11: 5, 12: 3, 13: 4, 14: 4, 15: 5, 16: 15, 17: 4, 18: 2 }
   }
 };
 
@@ -190,6 +195,12 @@ function simulate(model, scenario) {
       front.phases.push({ phase: phaseName, startWeek: atWeek, endWeek: atWeek });
       front.phaseIndex = phaseIndex;
       front.phaseEndWeek = atWeek;
+      // cascada inmediata: intentar arrancar ya la siguiente fase la MISMA semana, sin esperar a la
+      // siguiente vuelta del bucle principal (si no, se perdia una semana entera sin motivo real,
+      // que el diagnostico de "Plan por Sitio" no podia explicar porque no habia ninguna contencion).
+      if (phaseIndex + 1 < PHASE_ORDER.length) {
+        tryStartPhase(front, phaseIndex + 1, atWeek);
+      }
       return true;
     }
     if (!canReserve(atWeek, duration, demand)) return false;
