@@ -225,6 +225,14 @@ function renderSiteDetail() {
   const maturityNote = (site.cluster === 3 || site.cluster === 4)
     ? `<p class="hint">En este clúster, la madurez A o B da exactamente la misma duración — no cambia el resultado.</p>` : "";
 
+  let queueNote = "";
+  if (schedule && schedule.startWeek > 0) {
+    const posicion = scenario.siteOrder.indexOf(siteId) + 1;
+    queueNote = `<div class="assumption" style="border-color:var(--accent);color:var(--text);">
+      ⏳ Este sitio no empezó hasta la <b>semana ${schedule.startWeek}</b> — no fue un problema de sus propias fases (arrancan sin huecos, ve la tabla abajo), fue <b>espera en la fila</b>: es el sitio #${posicion} en tu orden de entrada, y con <b>${scenario.maxFrentes} frente(s) en paralelo</b> solo esa cantidad de sitios trabaja a la vez de los 15. Sube "Frentes en paralelo" en Plan General (y el headcount necesario para sostenerlos) para que arranque antes, o cámbialo de posición en la fila en "Uso de Recursos".
+    </div>`;
+  }
+
   let phasesHtml = "";
   if (schedule) {
     const totalW = Math.max(schedule.endWeek, 1);
@@ -277,7 +285,7 @@ function renderSiteDetail() {
       <div class="kpi"><div class="value">${schedule ? fmtWeeks(schedule.endWeek - schedule.startWeek) : "—"}</div><div class="label">Duración total del sitio</div></div>
       <div class="kpi"><div class="value">${fmtMoney(fin ? fin.benefitsPerMonth : 0)}</div><div class="label">Beneficio mensual una vez vivo</div></div>
     </div>
-    ${assumedNote}${maturityNote}
+    ${assumedNote}${maturityNote}${queueNote}
     <div class="table-scroll">
       <table>
         <thead><tr><th>Fase</th><th>Semanas del programa</th><th>Fechas</th><th>Roles que consume</th></tr></thead>
