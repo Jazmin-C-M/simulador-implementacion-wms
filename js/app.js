@@ -23,6 +23,13 @@ let scenario = recommendedScenario(model, {});
 let sim = null;
 let costs = null;
 
+// Origen del escenario actual: "ia" (una de las 6 propuestas encontradas por busqueda automatizada),
+// "archivo" (Actual/Escenario1, tal cual vienen en el Excel), o "manual" (el usuario toco algo a mano).
+// Se usa para la bitacora de "Mis Pruebas" -- comparar lo que el usuario logra ajustando el mismo
+// contra lo que encontro la IA, sin inventar un historial que no paso.
+let origenActual = "ia";
+function marcarComoManual() { origenActual = "manual"; }
+
 function recalc() {
   const effectiveModel = buildDelayedModel(model, scenario.delayFactor || 0);
   sim = simulate(effectiveModel, scenario);
@@ -52,28 +59,33 @@ document.getElementById("tabs").addEventListener("click", e => {
 
 // ---------------- Controles generales ----------------
 document.getElementById("scenarioName").addEventListener("input", e => { scenario.name = e.target.value; });
-document.getElementById("startDate").addEventListener("change", e => { scenario.startDateISO = e.target.value; recalc(); });
+document.getElementById("startDate").addEventListener("change", e => { scenario.startDateISO = e.target.value; marcarComoManual(); recalc(); });
 document.getElementById("maxFrentes").addEventListener("change", e => {
   scenario.maxFrentes = Math.max(1, parseInt(e.target.value) || 1);
+  marcarComoManual();
   recalc();
 });
 document.getElementById("delayFactor").addEventListener("input", e => {
   scenario.delayFactor = Math.max(0, parseFloat(e.target.value) || 0) / 100;
+  marcarComoManual();
   recalc();
 });
 document.getElementById("btnLoadActual").addEventListener("click", () => {
   scenario = loadPresetScenario(model, "actual", scenario.startDateISO);
+  origenActual = "archivo";
   syncControlsFromScenario();
   recalc();
 });
 document.getElementById("btnLoadEscenario1").addEventListener("click", () => {
   scenario = loadPresetScenario(model, "escenario1", scenario.startDateISO);
+  origenActual = "archivo";
   syncControlsFromScenario();
   recalc();
 });
 document.getElementById("btnLoadPropuesta").addEventListener("click", () => {
   const key = parseInt(document.getElementById("propuestaSelector").value);
   scenario = loadPropuesta(model, key, scenario.startDateISO);
+  origenActual = "ia";
   syncControlsFromScenario();
   renderTablaSitios();
   renderTablaRecursos();
@@ -275,6 +287,7 @@ function renderTablaRecursos() {
     input.addEventListener("input", e => {
       const id = parseInt(e.target.dataset.roleId);
       scenario.roleHeadcountByVariantId[id] = Math.max(0, parseInt(e.target.value) || 0);
+      marcarComoManual();
       recalc();
     });
   });
@@ -314,6 +327,7 @@ function renderTablaSitios() {
 
   document.querySelectorAll(".input-orden").forEach(input => {
     input.addEventListener("change", e => {
+      marcarComoManual();
       const siteId = e.target.dataset.site;
       const newPos = Math.max(1, Math.min(model.sites.length, parseInt(e.target.value) || 1));
       scenario.siteOrder = scenario.siteOrder.filter(id => id !== siteId);
@@ -323,10 +337,10 @@ function renderTablaSitios() {
     });
   });
   document.querySelectorAll(".input-madurez").forEach(sel => {
-    sel.addEventListener("change", e => { scenario.siteMaturity[e.target.dataset.site] = e.target.value; recalc(); });
+    sel.addEventListener("change", e => { scenario.siteMaturity[e.target.dataset.site] = e.target.value; marcarComoManual(); recalc(); });
   });
   document.querySelectorAll(".input-wifi").forEach(sel => {
-    sel.addEventListener("change", e => { scenario.siteWifiOption[e.target.dataset.site] = e.target.value; recalc(); });
+    sel.addEventListener("change", e => { scenario.siteWifiOption[e.target.dataset.site] = e.target.value; marcarComoManual(); recalc(); });
   });
 }
 
@@ -370,11 +384,14 @@ function setSavedScenarios(list) {
   localStorage.setItem(LS_KEY, JSON.stringify(list));
 }
 
-document.getElementById("btnGuardarEscenario").addEventListener("click", () => {
+const ORIGEN_LABELS = { ia: "🤖 IA", archivo: "📄 Archivo", manual: "✋ Manual" };
+
+function guardarEscenarioActual(origenForzado) {
   const list = getSavedScenarios();
   list.push({
     id: Date.now(),
     savedAt: new Date().toISOString(),
+    origen: origenForzado || origenActual,
     scenario: JSON.parse(JSON.stringify(scenario)),
     resumen: {
       meetsGoal: sim.meetsGoal,
@@ -384,13 +401,27 @@ document.getElementById("btnGuardarEscenario").addEventListener("click", () => {
   });
   setSavedScenarios(list);
   renderEscenariosGuardados();
-});
+  renderMisPruebas();
+}
+
+document.getElementById("btnGuardarEscenario").addEventListener("click", () => guardarEscenarioActual());
+document.getElementById("btnGuardarIntentoManual").addEventListener("click", () => guardarEscenarioActual("manual"));
+
+function cargarEscenarioGuardado(item) {
+  scenario = item.scenario;
+  origenActual = item.origen || "manual";
+  syncControlsFromScenario();
+  renderTablaSitios();
+  renderTablaRecursos();
+  recalc();
+}
 
 function renderEscenariosGuardados() {
   const list = getSavedScenarios();
   const rows = list.map(item => `
     <tr>
       <td>${item.scenario.name}</td>
+      <td>${ORIGEN_LABELS[item.origen] || "—"}</td>
       <td>${new Date(item.savedAt).toLocaleString("es-MX")}</td>
       <td>${item.resumen.meetsGoal ? "✅" : "❌"}</td>
       <td>${fmtWeeks(item.resumen.totalWeeks)}</td>
@@ -402,25 +433,21 @@ function renderEscenariosGuardados() {
       </td>
     </tr>`).join("");
   document.getElementById("tablaComparacion").innerHTML = `
-    <thead><tr><th>Nombre</th><th>Guardado</th><th>¿8 meses?</th><th>Duración</th><th>Costo</th><th>Retraso</th><th>Acciones</th></tr></thead>
-    <tbody>${rows || `<tr><td colspan="7" style="color:var(--text-dim)">Aún no hay escenarios guardados.</td></tr>`}</tbody>
+    <thead><tr><th>Nombre</th><th>Origen</th><th>Guardado</th><th>¿8 meses?</th><th>Duración</th><th>Costo</th><th>Retraso</th><th>Acciones</th></tr></thead>
+    <tbody>${rows || `<tr><td colspan="8" style="color:var(--text-dim)">Aún no hay escenarios guardados.</td></tr>`}</tbody>
   `;
 
   document.querySelectorAll("[data-load]").forEach(btn => {
     btn.addEventListener("click", () => {
       const item = list.find(i => i.id === parseInt(btn.dataset.load));
-      if (!item) return;
-      scenario = item.scenario;
-      syncControlsFromScenario();
-      renderTablaSitios();
-      renderTablaRecursos();
-      recalc();
+      if (item) cargarEscenarioGuardado(item);
     });
   });
   document.querySelectorAll("[data-del]").forEach(btn => {
     btn.addEventListener("click", () => {
       setSavedScenarios(getSavedScenarios().filter(i => i.id !== parseInt(btn.dataset.del)));
       renderEscenariosGuardados();
+      renderMisPruebas();
     });
   });
 }
@@ -462,6 +489,53 @@ function renderEntendimiento() {
 
 function addDays(date, days) { return new Date(date.getTime() + days * 24 * 60 * 60 * 1000); }
 
+// ---------------- Render: Mis Pruebas (bitacora manual vs. IA) ----------------
+function renderMisPruebas() {
+  const list = getSavedScenarios();
+  const intentosManuales = list.filter(i => i.origen === "manual");
+
+  const mejorIA = Object.entries(PROPUESTAS)
+    .map(([key, p]) => ({ key, cost: p.costoVerificado }))
+    .sort((a, b) => a.cost - b.cost)[0];
+
+  const manualesQueCumplen = intentosManuales.filter(i => i.resumen.meetsGoal);
+  const mejorManual = manualesQueCumplen.length
+    ? manualesQueCumplen.reduce((best, i) => i.resumen.totalCost < best.resumen.totalCost ? i : best)
+    : null;
+
+  let kpiHtml = `
+    <div class="kpi"><div class="value">${fmtMoney(mejorIA.cost)}</div><div class="label">Mejor de la IA (Propuesta ${mejorIA.key}, 6 probadas)</div></div>
+    <div class="kpi ${mejorManual ? "good" : ""}"><div class="value">${mejorManual ? fmtMoney(mejorManual.resumen.totalCost) : "—"}</div><div class="label">Tu mejor intento manual que cumple</div></div>
+    <div class="kpi"><div class="value">${intentosManuales.length}</div><div class="label">Intentos manuales guardados</div></div>
+  `;
+  if (mejorManual) {
+    const diff = mejorManual.resumen.totalCost - mejorIA.cost;
+    const pct = Math.round((diff / mejorIA.cost) * 1000) / 10;
+    kpiHtml += `<div class="kpi ${diff > 0 ? "bad" : "good"}"><div class="value">${diff > 0 ? "+" : ""}${fmtMoney(diff)}</div><div class="label">Diferencia vs. la IA (${diff > 0 ? "+" : ""}${pct}%)</div></div>`;
+  }
+  document.getElementById("kpiComparacionManualVsIA").innerHTML = kpiHtml;
+
+  const rows = intentosManuales.slice().reverse().map(item => `
+    <tr>
+      <td>${new Date(item.savedAt).toLocaleString("es-MX")}</td>
+      <td>${item.scenario.name}</td>
+      <td>${item.resumen.meetsGoal ? "✅" : "❌"}</td>
+      <td>${fmtWeeks(item.resumen.totalWeeks)}</td>
+      <td>${fmtMoney(item.resumen.totalCost)}</td>
+      <td><button class="btn small secondary" data-load-manual="${item.id}">Cargar</button></td>
+    </tr>`).join("");
+  document.getElementById("tablaIntentosManuales").innerHTML = `
+    <thead><tr><th>Guardado</th><th>Nombre</th><th>¿8 meses?</th><th>Duración</th><th>Costo</th><th>Acciones</th></tr></thead>
+    <tbody>${rows || `<tr><td colspan="6" style="color:var(--text-dim)">Aún no has guardado ningún intento manual. Ajusta algo en "Uso de Recursos" y guárdalo aquí.</td></tr>`}</tbody>
+  `;
+  document.querySelectorAll("[data-load-manual]").forEach(btn => {
+    btn.addEventListener("click", () => {
+      const item = list.find(i => i.id === parseInt(btn.dataset.loadManual));
+      if (item) cargarEscenarioGuardado(item);
+    });
+  });
+}
+
 // ---------------- Render orquestador ----------------
 function renderAll() {
   renderStatusBadges();
@@ -473,6 +547,7 @@ function renderAll() {
   renderSiteDetail();
   renderCostos();
   renderEscenariosGuardados();
+  renderMisPruebas();
 }
 
 // ---------------- Init ----------------

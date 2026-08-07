@@ -17,6 +17,7 @@
   <button data-tab="general" class="active">Plan General</button>
   <button data-tab="porSitio">Plan por Sitio</button>
   <button data-tab="recursos">Uso de Recursos</button>
+  <button data-tab="misPruebas">Mis Pruebas</button>
   <button data-tab="escenarios">Escenarios</button>
   <button data-tab="costos">Resumen de Costos</button>
   <button data-tab="entendimiento">Entendimiento del Excel</button>
@@ -105,6 +106,35 @@
       <p class="hint">Orden de entrada, nivel de madurez (A/B) y opción de WiFi — palancas que puedes mover por sitio.</p>
       <div class="table-scroll">
         <table id="tablaSitios"></table>
+      </div>
+    </div>
+  </section>
+
+  <!-- Bitacora de exploracion manual: comparar "yo a mano" vs "lo que encontro la IA" -->
+  <section class="tab-panel" id="tab-misPruebas">
+    <div class="panel">
+      <h2>Mis Pruebas — tu bitácora de exploración manual</h2>
+      <p class="hint">
+        Esta pestaña es para que ajustes tú mismo el headcount en "Uso de Recursos" y guardes cada intento aquí,
+        como tu propia bitácora de prueba y error. Sirve para comparar, con números reales, cuánto tiempo/vueltas
+        te toma llegar a un escenario que cumpla los 8 meses a mano, contra lo que encontró la IA en segundos —
+        esa comparación es justo el punto del ejercicio: ver el beneficio real de apoyarte en la herramienta.
+      </p>
+      <div style="display:flex; gap:10px; flex-wrap:wrap; align-items:center;">
+        <button class="btn" id="btnGuardarIntentoManual">Guardar mi intento actual aquí</button>
+        <span class="hint" style="margin:0;">Ajusta primero en la pestaña "Uso de Recursos", luego regresa aquí y guarda.</span>
+      </div>
+    </div>
+
+    <div class="panel">
+      <h2>Comparación: tú vs. la IA</h2>
+      <div class="kpi-row" id="kpiComparacionManualVsIA"></div>
+    </div>
+
+    <div class="panel">
+      <h2>Tu bitácora de intentos</h2>
+      <div class="table-scroll">
+        <table id="tablaIntentosManuales"></table>
       </div>
     </div>
   </section>
