@@ -158,6 +158,16 @@
       </div>
       <div id="listaEscenarios" style="margin-top:14px;"></div>
     </div>
+
+    <div class="panel">
+      <h2>Llevar tus escenarios a otro navegador o computadora</h2>
+      <p class="hint">Lo guardado aquí vive solo en este navegador y esta dirección (<code id="origenActualUrl"></code>). Si abres el simulador desde otra dirección (por ejemplo, la versión publicada en vez de tu copia local), o desde otra computadora, no lo vas a ver ahí a menos que lo exportes e importes.</p>
+      <div style="display:flex; gap:10px; flex-wrap:wrap;">
+        <button class="btn secondary" id="btnExportarEscenarios">Exportar mis escenarios a un archivo</button>
+        <button class="btn secondary" id="btnImportarEscenarios">Importar escenarios desde un archivo</button>
+        <input type="file" id="inputImportarEscenarios" accept="application/json" style="display:none;">
+      </div>
+    </div>
   </section>
 
   <!-- ENTREGABLE 5: Resumen de costos -->

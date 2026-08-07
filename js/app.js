@@ -465,6 +465,50 @@ function guardarEscenarioActual(origenForzado) {
 document.getElementById("btnGuardarEscenario").addEventListener("click", () => guardarEscenarioActual());
 document.getElementById("btnGuardarIntentoManual").addEventListener("click", () => guardarEscenarioActual("manual"));
 
+// ---------------- Exportar / importar escenarios guardados (localStorage no viaja entre direcciones) ----------------
+const elOrigenUrl = document.getElementById("origenActualUrl");
+if (elOrigenUrl) elOrigenUrl.textContent = window.location.origin + window.location.pathname;
+
+document.getElementById("btnExportarEscenarios").addEventListener("click", () => {
+  const list = getSavedScenarios();
+  if (list.length === 0) { alert("Todavía no tienes ningún escenario guardado aquí para exportar."); return; }
+  const blob = new Blob([JSON.stringify(list, null, 2)], { type: "application/json" });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = "mis-escenarios-wms.json";
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+});
+
+document.getElementById("btnImportarEscenarios").addEventListener("click", () => {
+  document.getElementById("inputImportarEscenarios").click();
+});
+document.getElementById("inputImportarEscenarios").addEventListener("change", e => {
+  const file = e.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = () => {
+    try {
+      const importados = JSON.parse(reader.result);
+      if (!Array.isArray(importados)) throw new Error("El archivo no tiene el formato esperado.");
+      const listaActual = getSavedScenarios();
+      // se les da un id nuevo a los importados para que nunca choquen con los que ya hay aqui
+      const conNuevoId = importados.map((item, i) => ({ ...item, id: Date.now() + i }));
+      setSavedScenarios(listaActual.concat(conNuevoId));
+      renderEscenariosGuardados();
+      renderMisPruebas();
+      alert(`Se importaron ${conNuevoId.length} escenario(s) correctamente.`);
+    } catch (err) {
+      alert("No se pudo leer el archivo — asegúrate de que sea un archivo exportado desde este mismo simulador.");
+    }
+    document.getElementById("inputImportarEscenarios").value = "";
+  };
+  reader.readAsText(file);
+});
+
 function cargarEscenarioGuardado(item) {
   scenario = item.scenario;
   origenActual = item.origen || "manual";
