@@ -74,12 +74,16 @@ document.getElementById("btnLoadActual").addEventListener("click", () => {
   scenario = loadPresetScenario(model, "actual", scenario.startDateISO);
   origenActual = "archivo";
   syncControlsFromScenario();
+  renderTablaSitios();
+  renderTablaRecursos();
   recalc();
 });
 document.getElementById("btnLoadEscenario1").addEventListener("click", () => {
   scenario = loadPresetScenario(model, "escenario1", scenario.startDateISO);
   origenActual = "archivo";
   syncControlsFromScenario();
+  renderTablaSitios();
+  renderTablaRecursos();
   recalc();
 });
 document.getElementById("btnLoadPropuesta").addEventListener("click", () => {
