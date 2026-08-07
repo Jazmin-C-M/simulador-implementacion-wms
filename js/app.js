@@ -87,14 +87,35 @@ document.getElementById("btnLoadEscenario1").addEventListener("click", () => {
   recalc();
 });
 document.getElementById("btnLoadPropuesta").addEventListener("click", () => {
-  const key = parseInt(document.getElementById("propuestaSelector").value);
-  scenario = loadPropuesta(model, key, scenario.startDateISO);
-  origenActual = "ia";
-  syncControlsFromScenario();
-  renderTablaSitios();
-  renderTablaRecursos();
-  recalc();
+  const value = document.getElementById("propuestaSelector").value;
+  if (value.startsWith("propuesta-")) {
+    const key = parseInt(value.replace("propuesta-", ""));
+    scenario = loadPropuesta(model, key, scenario.startDateISO);
+    origenActual = "ia";
+    syncControlsFromScenario();
+    renderTablaSitios();
+    renderTablaRecursos();
+    recalc();
+  } else if (value.startsWith("guardado-")) {
+    const id = parseInt(value.replace("guardado-", ""));
+    const item = getSavedScenarios().find(i => i.id === id);
+    if (item) cargarEscenarioGuardado(item);
+  }
 });
+
+function renderPropuestaSelectorGuardados() {
+  const optgroup = document.getElementById("optgroupGuardados");
+  const selector = document.getElementById("propuestaSelector");
+  const valorPrevio = selector.value;
+  const list = getSavedScenarios();
+  optgroup.innerHTML = list.length
+    ? list.map(item => `<option value="guardado-${item.id}">${item.scenario.name} (${ORIGEN_LABELS[item.origen] || "?"}, ${fmtMoney(item.resumen.totalCost)})</option>`).join("")
+    : `<option value="" disabled>Aún no has guardado ningún escenario</option>`;
+  // conservar la seleccion si sigue existiendo, si no, regresar a la propuesta recomendada
+  if (Array.from(selector.options).some(o => o.value === valorPrevio)) {
+    selector.value = valorPrevio;
+  }
+}
 
 function syncControlsFromScenario() {
   document.getElementById("scenarioName").value = scenario.name;
@@ -528,6 +549,7 @@ function addDays(date, days) { return new Date(date.getTime() + days * 24 * 60 *
 
 // ---------------- Render: Mis Pruebas (bitacora manual vs. IA) ----------------
 function renderMisPruebas() {
+  renderPropuestaSelectorGuardados();
   const list = getSavedScenarios();
   const intentosManuales = list.filter(i => i.origen === "manual");
 
