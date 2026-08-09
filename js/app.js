@@ -463,7 +463,18 @@ function guardarEscenarioActual(origenForzado) {
 }
 
 document.getElementById("btnGuardarEscenario").addEventListener("click", () => guardarEscenarioActual());
-document.getElementById("btnGuardarIntentoManual").addEventListener("click", () => guardarEscenarioActual("manual"));
+document.getElementById("btnGuardarIntentoManual").addEventListener("click", () => {
+  if (origenActual !== "manual") {
+    const sigue = confirm(
+      "Lo que tienes cargado ahora mismo no tiene ningún cambio tuyo detectado — es una Propuesta de la IA " +
+      "(o Actual/Escenario 1) tal cual, sin editar. Si acabas de refrescar la página, tus cambios anteriores " +
+      "no se guardaron (se pierden al recargar hasta que le das \"Guardar\").\n\n" +
+      "¿Seguro que quieres guardar esto como tu intento manual de todos modos?"
+    );
+    if (!sigue) return;
+  }
+  guardarEscenarioActual("manual");
+});
 
 // ---------------- Exportar / importar escenarios guardados (localStorage no viaja entre direcciones) ----------------
 const elOrigenUrl = document.getElementById("origenActualUrl");
