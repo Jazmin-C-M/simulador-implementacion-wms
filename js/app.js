@@ -15,6 +15,15 @@ const PHASE_COLORS = {
 
 const LS_KEY = "wms_simulador_escenarios_v1";
 
+// Bitacora real de exploracion manual de la usuaria (Jaz), guardada aqui -- no solo en su localStorage --
+// para que quede visible en la pestana "Escenarios"/"Mis Pruebas" aunque se abra en un navegador nuevo
+// (ej. el profesor calificando). Son intentos genuinos, verificados: Jaz 1 no cumple (79 sem, $35,917,975),
+// Jaz 2 si cumple (34 sem, $29,228,028) -- sirve para comparar contra las 6 Propuestas de la IA.
+const SEED_MIS_INTENTOS = [
+  {"id":1786307404717,"savedAt":"2026-08-09T20:30:04.717Z","origen":"manual","scenario":{"name":"Jaz 1","startDateISO":"2026-08-09","maxFrentes":3,"delayFactor":0,"siteOrder":["Site 01","Site 02","Site 03","Site 04","Site 05","Site 06","Site 07","Site 08","Site 09","Site 10","Site 11","Site 12","Site 13","Site 14","Site 15"],"siteMaturity":{"Site 01":"B","Site 02":"B","Site 03":"B","Site 04":"B","Site 05":"B","Site 06":"B","Site 07":"B","Site 08":"B","Site 09":"B","Site 10":"B","Site 11":"B","Site 12":"B","Site 13":"B","Site 14":"B","Site 15":"B"},"siteWifiOption":{"Site 01":"wifiPrioritized","Site 02":"wifiPrioritized","Site 03":"wifiPrioritized","Site 04":"wifiPrioritized","Site 05":"wifiPrioritized","Site 06":"wifiPrioritized","Site 07":"wifiPrioritized","Site 08":"wifiPrioritized","Site 09":"wifiPrioritized","Site 10":"wifiPrioritized","Site 11":"wifiPrioritized","Site 12":"wifiPrioritized","Site 13":"wifiPrioritized","Site 14":"wifiPrioritized","Site 15":"wifiPrioritized"},"roleHeadcountByVariantId":{"1":3,"2":1,"3":1,"4":1,"5":2,"6":1,"7":3,"8":1,"9":6,"10":2,"11":3,"12":3,"13":3,"14":3,"15":3,"16":10,"17":3,"18":3}},"resumen":{"meetsGoal":false,"totalWeeks":79,"totalCost":35917974.612805784}},
+  {"id":1786308214701,"savedAt":"2026-08-09T20:43:34.702Z","origen":"manual","scenario":{"name":"Jaz 2","startDateISO":"2026-08-05","maxFrentes":15,"delayFactor":0,"siteOrder":["Site 01","Site 02","Site 03","Site 04","Site 05","Site 06","Site 07","Site 08","Site 09","Site 10","Site 11","Site 12","Site 13","Site 14","Site 15"],"siteMaturity":{"Site 01":"B","Site 02":"B","Site 03":"B","Site 04":"B","Site 05":"B","Site 06":"B","Site 07":"B","Site 08":"B","Site 09":"B","Site 10":"B","Site 11":"B","Site 12":"B","Site 13":"B","Site 14":"B","Site 15":"B"},"siteWifiOption":{"Site 01":"wifiFullOptimized","Site 02":"wifiFullOptimized","Site 03":"wifiFullOptimized","Site 04":"wifiFullOptimized","Site 05":"wifiFullOptimized","Site 06":"wifiFullOptimized","Site 07":"wifiFullOptimized","Site 08":"wifiFullOptimized","Site 09":"wifiFullOptimized","Site 10":"wifiFullOptimized","Site 11":"wifiFullOptimized","Site 12":"wifiFullOptimized","Site 13":"wifiFullOptimized","Site 14":"wifiFullOptimized","Site 15":"wifiFullOptimized"},"roleHeadcountByVariantId":{"1":5,"2":1,"3":1,"4":1,"5":8,"6":1,"7":9,"8":0,"9":1,"10":7,"11":6,"12":4,"13":4,"14":4,"15":4,"16":12,"17":5,"18":1}},"resumen":{"meetsGoal":true,"totalWeeks":34,"totalCost":29228027.51076973}}
+];
+
 const model = buildModel(RAW_DATA);
 // Punto de partida: un escenario ya verificado que cumple los 8 meses (no "Actual", que no cumple).
 // Esta incrustado en engine.js, no en localStorage, para que se vea aunque sea la primera vez que
@@ -665,6 +674,11 @@ function renderAll() {
 }
 
 // ---------------- Init ----------------
+// Si es la primera vez que se abre el simulador en este navegador (nada guardado todavia), se precarga
+// la bitacora real de exploracion manual -- asi queda visible sin depender de que cada quien la guarde.
+if (getSavedScenarios().length === 0) {
+  setSavedScenarios(SEED_MIS_INTENTOS);
+}
 syncControlsFromScenario();
 renderTablaRecursos();
 renderTablaSitios();
