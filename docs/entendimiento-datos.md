@@ -2,7 +2,7 @@
 
 Este documento explica qué contiene cada una de las 6 pestañas del archivo, cómo se conectan entre sí, y qué anomalías o huecos se encontraron durante la revisión (sin modificar el archivo original — ver `datos/exports/` para las copias de solo lectura en CSV usadas en el análisis).
 
-Todos los valores monetarios del archivo se tratan como **pesos mexicanos (MXN)**, sin conversión de moneda (aclaración del profesor en clase, ver `spec.md`).
+Los valores de **Financials** venían originalmente en **USD** y se convierten a MXN con **tipo de cambio 18** (`FX_USD_TO_MXN`); los de **Resource Master** ya venían en **MXN** de origen y no se convierten. (Aclaración del profesor en clase, actualizada el 2026-08-10 — ver `spec.md` para el historial de esta decisión.)
 
 ---
 
@@ -39,8 +39,8 @@ Un renglón por sitio (7 México, 8 Colombia), con su **Clúster** (1 a 4 — de
 - **Site 02 y Site 03 (México) son idénticos** en todas las columnas excepto el nombre. Confirmado con el usuario: es un duplicado real que el profesor metió en clase para rellenar un sitio faltante — se trata como dos sitios reales, no se corrige.
 - Precisión de decimales distinta entre países (México con cifras redondas, Colombia con muchos decimales) — no es error, solo una diferencia de origen de los datos.
 
-## 3. Financials (USD) — beneficio y costo de implementación por sitio
-Un renglón por sitio con el beneficio mensual que deja el WMS ya en operación, y el desglose del costo de implementarlo:
+## 3. Financials (USD → convertido a MXN) — beneficio y costo de implementación por sitio
+Un renglón por sitio con el beneficio mensual que deja el WMS ya en operación, y el desglose del costo de implementarlo. **Todos los montos de esta pestaña se multiplican × 18 (tipo de cambio) antes de usarse en el simulador**, porque estaban en USD:
 
 | Columna original | Traducción |
 |---|---|
@@ -119,7 +119,7 @@ Sites Master (15 sitios, cada uno con un Clúster 1-4)
                        │
                        └─→ si la demanda de un rol en una semana > headcount disponible → contención → se retrasa
 
-Financials (USD/MXN) + Resource Master (costo mensual por rol × headcount elegido)
+Financials (USD × 18 → MXN) + Resource Master (MXN, costo mensual por rol × headcount elegido)
      │
      └─→ Resumen de costos (entregable 5): por escenario, por sitio, por tipo de recurso
 ```

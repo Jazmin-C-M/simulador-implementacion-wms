@@ -28,7 +28,7 @@ Proyecto del curso de IA: un simulador del programa de implementación de un WMS
 
 ## Qué evitar
 - No modificar ni "limpiar" los valores del archivo de origen sin avisar — solo señalar anomalías y proponer, nunca aplicar en silencio.
-- No mezclar unidades (MXN vs USD, semanas vs meses, piezas vs cajas) sin conversión explícita — aunque la pestaña se llame "Financials (USD)", todos los valores monetarios del archivo se tratan como MXN (aclaración del profesor en clase, ver `docs/spec.md`).
+- No mezclar unidades (MXN vs USD, semanas vs meses, piezas vs cajas) sin conversión explícita — Financials (que traía USD) se convierte a MXN con tipo de cambio 18 (`FX_USD_TO_MXN` en `js/model.js`); Resource Master ya venía en MXN y no se convierte. Ver `docs/spec.md` para el historial de esta decisión (cambió el 2026-08-10).
 - No resolver el reto de optimización (qué escenario logra 8 meses al menor costo) en lugar del usuario — esa es la tarea calificada del curso; el trabajo de Claude es que el simulador calcule bien y muestre el porqué de cada resultado, no encontrar la respuesta ganadora.
 
 ## Stack y versiones

@@ -8,6 +8,12 @@ const PHASE_ORDER = [
 
 const WEEKS_PER_MONTH = 4.345; // promedio calendario (52 semanas / 12 meses)
 
+// Los valores de "Financials" venian originalmente en USD (asi se llama la pestana en el Excel);
+// los de "Resource Master" ya vienen en MXN (columna "Average Monthly Cost (MXN)"), sin conversion.
+// Aclaracion del profesor en clase (2026-08-10): usar tipo de cambio 18 MXN por USD para convertir
+// Financials a pesos -- reemplaza la instruccion anterior de "tratar todo como pesos sin convertir".
+const FX_USD_TO_MXN = 18;
+
 function buildModel(raw) {
   const sites = raw.sites.map(s => ({ ...s }));
 

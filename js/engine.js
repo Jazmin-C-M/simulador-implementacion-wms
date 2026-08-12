@@ -87,35 +87,38 @@ function loadPresetScenario(model, preset, startDateISO) {
 // tryStartPhase). El bug se detecto porque el usuario probo un escenario propio, Cluster 4 (Site 12)
 // mostro un hueco entre fases sin ningun rol saturado, y al investigar se encontro el error real.
 // Estas 6 propuestas quedaron re-optimizadas contra el motor ya corregido.
+// costoVerificado actualizado el 2026-08-10: el profesor aclaro en clase que Financials (USD en el
+// archivo original) se convierte a MXN con tipo de cambio 18 -- antes se trataba todo como MXN sin
+// convertir. Las semanas/cumple-8-meses NO cambian (el FX solo afecta costo, no el cronograma).
 const PROPUESTAS = {
   1: {
     label: "Propuesta 1 — menor costo puro (sin Project/Warehouse Managers)",
-    maxFrentes: 13, delayFactor: 0, costoVerificado: 25251921.68,
+    maxFrentes: 13, delayFactor: 0, costoVerificado: 174451276.06,
     headcount: { 1: 4, 2: 0, 3: 0, 4: 0, 5: 0, 6: 7, 7: 0, 8: 8, 9: 0, 10: 9, 11: 4, 12: 3, 13: 4, 14: 4, 15: 2, 16: 13, 17: 4, 18: 2 }
   },
   2: {
     label: "Propuesta 2 — enfoque realista (con Project/Warehouse Managers)",
-    maxFrentes: 13, delayFactor: 0, costoVerificado: 25831898.66,
+    maxFrentes: 13, delayFactor: 0, costoVerificado: 175031253.04,
     headcount: { 1: 4, 2: 1, 3: 1, 4: 1, 5: 0, 6: 7, 7: 7, 8: 0, 9: 0, 10: 9, 11: 4, 12: 3, 13: 4, 14: 4, 15: 4, 16: 13, 17: 4, 18: 2 }
   },
   3: {
     label: "Propuesta 3 — menor costo puro, ajuste fino (sin Project/Warehouse Managers)",
-    maxFrentes: 13, delayFactor: 0, costoVerificado: 25166766.33,
+    maxFrentes: 13, delayFactor: 0, costoVerificado: 174366120.71,
     headcount: { 1: 4, 2: 0, 3: 0, 4: 0, 5: 0, 6: 7, 7: 7, 8: 0, 9: 0, 10: 9, 11: 4, 12: 3, 13: 4, 14: 4, 15: 4, 16: 13, 17: 4, 18: 2 }
   },
   4: {
     label: "Propuesta 4 — recomendada: realista, ajuste fino (con Project/Warehouse Managers)",
-    maxFrentes: 12, delayFactor: 0, costoVerificado: 25627525.82,
+    maxFrentes: 12, delayFactor: 0, costoVerificado: 174826880.2,
     headcount: { 1: 4, 2: 1, 3: 1, 4: 1, 5: 0, 6: 7, 7: 0, 8: 7, 9: 0, 10: 8, 11: 4, 12: 3, 13: 4, 14: 4, 15: 4, 16: 12, 17: 5, 18: 2 }
   },
   5: {
     label: "Propuesta 5 — realista + 5% de retraso de contingencia",
-    maxFrentes: 14, delayFactor: 0.05, costoVerificado: 26503705.34,
+    maxFrentes: 14, delayFactor: 0.05, costoVerificado: 175703059.72,
     headcount: { 1: 5, 2: 1, 3: 1, 4: 1, 5: 8, 6: 0, 7: 0, 8: 8, 9: 0, 10: 10, 11: 4, 12: 4, 13: 4, 14: 4, 15: 3, 16: 15, 17: 4, 18: 2 }
   },
   6: {
     label: "Propuesta 6 — realista + 10% de retraso de contingencia",
-    maxFrentes: 14, delayFactor: 0.10, costoVerificado: 28629827.32,
+    maxFrentes: 14, delayFactor: 0.10, costoVerificado: 177829181.7,
     headcount: { 1: 5, 2: 1, 3: 1, 4: 1, 5: 7, 6: 0, 7: 0, 8: 10, 9: 11, 10: 0, 11: 5, 12: 3, 13: 4, 14: 4, 15: 5, 16: 15, 17: 4, 18: 2 }
   }
 };
@@ -288,13 +291,14 @@ function computeCosts(model, scenario, sim) {
   model.sites.forEach(s => { bySite[s.siteId] = { capex: 0, resourceCost: 0 }; });
 
   // --- Capex por sitio (dispositivos, montacargas, señalizacion, etiquetas, wifi elegido) ---
+  // Los montos de Financials estaban en USD -- se convierten a MXN con FX_USD_TO_MXN (ver model.js).
   model.sites.forEach(s => {
     const fin = model.financialsBySite[s.siteId];
     if (!fin) return;
     const wifiOption = scenario.siteWifiOption[s.siteId] || "wifiFullOptimized";
-    const capex = fin.implementationCosts + fin.devices + fin.forkliftStructure + fin.warehouseSignage +
+    const capexUsd = fin.implementationCosts + fin.devices + fin.forkliftStructure + fin.warehouseSignage +
       fin.labels + fin.labelPrinters + fin.manualLabeling + (fin[wifiOption] || 0);
-    bySite[s.siteId].capex = capex;
+    bySite[s.siteId].capex = capexUsd * FX_USD_TO_MXN;
   });
 
   // --- Costo de recursos ---
