@@ -342,12 +342,22 @@ function renderTablaRecursos() {
     </tr>`;
   }).join("");
 
+  const totalActual = model.roleVariants.reduce((sum, r) => sum + r.actual, 0);
+  const totalEscenario1 = model.roleVariants.reduce((sum, r) => sum + r.escenario1, 0);
+  const totalTuEscenario = model.roleVariants.reduce((sum, r) => sum + (scenario.roleHeadcountByVariantId[r.id] || 0), 0);
+
   document.getElementById("tablaRecursos").innerHTML = `
     <thead><tr>
       <th>Rol</th><th>Interno/Externo</th><th>Modalidad</th><th>Multitarea</th><th>Costo</th>
       <th>$/mes (MXN)</th><th>Actual</th><th>Escenario 1</th><th>Tu escenario</th>
     </tr></thead>
     <tbody>${rows}</tbody>
+    <tfoot><tr style="font-weight:700;">
+      <td colspan="6">Total de personas</td>
+      <td style="color:var(--text-dim)">${totalActual}</td>
+      <td style="color:var(--text-dim)">${totalEscenario1}</td>
+      <td id="totalTuEscenarioCell">${totalTuEscenario}</td>
+    </tr></tfoot>
   `;
 
   document.querySelectorAll(".input-headcount").forEach(input => {
@@ -355,6 +365,8 @@ function renderTablaRecursos() {
       const id = parseInt(e.target.dataset.roleId);
       scenario.roleHeadcountByVariantId[id] = Math.max(0, parseInt(e.target.value) || 0);
       marcarComoManual();
+      const nuevoTotal = model.roleVariants.reduce((sum, r) => sum + (scenario.roleHeadcountByVariantId[r.id] || 0), 0);
+      document.getElementById("totalTuEscenarioCell").textContent = nuevoTotal;
       recalc();
     });
   });
@@ -413,10 +425,12 @@ function renderTablaSitios() {
 
 // ---------------- Render: costos ----------------
 function renderCostos() {
+  const totalPersonas = model.roleVariants.reduce((sum, r) => sum + (scenario.roleHeadcountByVariantId[r.id] || 0), 0);
   document.getElementById("kpiCostos").innerHTML = `
     <div class="kpi"><div class="value">${fmtMoney(costs.totalCost)}</div><div class="label">Costo total del escenario (MXN)</div></div>
     <div class="kpi"><div class="value">${fmtMoney(costs.totalCapex)}</div><div class="label">Implementación (capex, una vez por sitio)</div></div>
     <div class="kpi"><div class="value">${fmtMoney(costs.totalResourceCost)}</div><div class="label">Recursos (equipo, según duración)</div></div>
+    <div class="kpi"><div class="value">${totalPersonas}</div><div class="label">Total de personas necesarias (suma de los 18 roles)</div></div>
   `;
 
   const rows = model.sites.map(s => {
